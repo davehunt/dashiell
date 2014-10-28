@@ -7,7 +7,8 @@ var settings = require('./configuration.js');
 var leaderboardMetrics = new Array('achievements', 'activities', 'distance', 'elevation');
 var help = {'help' : 'Show this help text',
             'activity': 'Mention activity xxxxx to show a summary of the activity',
-            'leaderboard [metric]': 'Show club leaderboard. Valid metrics are: ' + leaderboardMetrics.join([separator = ', ']) + '. Defaults to distance.'};
+            'leaderboard [metric]': 'Show club leaderboard. Valid metrics are: ' + leaderboardMetrics.join([separator = ', ']) + '. Defaults to distance.',
+            'source': 'Share link to source code.'};
 
 for (var item in settings) {
   util.log(item + ': ' + settings[item]);
@@ -55,6 +56,9 @@ client.addListener('message', function(from, to, message) {
             buildLeaderboard(activities, command.split(' ')[1]);
           })
         });
+        break;
+      case 'source':
+        client.say(respondTo, 'Hey' + addressee + ', you can find my source code here: https://github.com/davehunt/dashiell');
         break;
       default:
         client.say(respondTo, 'Sorry' + addressee + ', I don\'t recognise that command. Try \'help\' to find out what I can do.');
