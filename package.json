@@ -1,0 +1,10 @@
+{
+  "name": "Dashiell",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "irc": ">= 0.3.7",
+    "strava-v3": ">= 1.5.2",
+    "strftime": ">=0.8.2"
+  }
+}
