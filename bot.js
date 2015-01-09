@@ -3,6 +3,7 @@ var strava = require('strava-v3');
 var strftime = require('strftime');
 var util = require('util');
 var settings = require('./configuration.js');
+var sprintf = require("sprintf-js").sprintf;
 
 var leaderboardMetrics = new Array('achievements', 'activities', 'distance', 'elevation');
 var help = {'help' : 'Show this help text',
@@ -18,7 +19,7 @@ var client = new irc.Client(settings.host, settings.nickname, {
   port: settings.port,
   channels: settings.channels
 });
-util.log('connected to IRC')
+util.log('connected to IRC');
 
 client.addListener('message', function(from, to, message) {
   util.log(from + ' => ' + to + ': "' + message + '"');
@@ -54,7 +55,7 @@ client.addListener('message', function(from, to, message) {
           util.log('club: ' + util.inspect(club));
           strava.clubs.listActivities({'id': settings.club, 'per_page': 200}, function(err, activities) {
             buildLeaderboard(activities, command.split(' ')[1]);
-          })
+          });
         });
         break;
       case 'source':
@@ -66,7 +67,7 @@ client.addListener('message', function(from, to, message) {
     return;
   }
 
-  var activitySearch = new RegExp('activit(ies\/|y\\s+)(\\d+)')
+  var activitySearch = new RegExp('activit(ies\/|y\\s+)(\\d+)');
   if (message.search(activitySearch) !== -1) {
     var activityID = message.match(activitySearch)[2];
     util.log('activity ' + activityID + ' mentioned');
@@ -78,17 +79,17 @@ client.addListener('message', function(from, to, message) {
   function calculatePace(meters, seconds) {
     var secondsPerKm = seconds / (meters / 1000);
     var minutesPerKm = Math.floor(secondsPerKm / 60);
-    var pacePerKm = util.format('%s:%s', minutesPerKm, Math.round(secondsPerKm - minutesPerKm * 60));
+    var pacePerKm = sprintf('%d:%02d', minutesPerKm, Math.round(secondsPerKm - minutesPerKm * 60));
     var secondsPerMile = secondsPerKm / 0.621371192;
     var minutesPerMile = Math.floor(secondsPerMile / 60);
-    var pacePerMile = util.format('%s:%s', minutesPerMile, Math.round(secondsPerMile - minutesPerMile * 60));
+    var pacePerMile = sprintf('%d:%02d', minutesPerMile, Math.round(secondsPerMile - minutesPerMile * 60));
     return util.format('%s/km (%s/mi)', pacePerKm, pacePerMile);
   }
 
   function calculateDistance(meters) {
     kilometers = meters / 1000;
     miles = kilometers * 0.621371192;
-    return util.format('%skm (%smi)', Math.round(kilometers * 10) / 10, Math.round(miles * 10) / 10);
+    return util.format('%s km (%s mi)', Math.round(kilometers * 10) / 10, Math.round(miles * 10) / 10);
   }
 
   function buildLeaderboard(activities, metric) {
@@ -134,7 +135,7 @@ client.addListener('message', function(from, to, message) {
     for (var athlete in metrics) {
       sortedMetrics.push([athlete, metrics[athlete]]);
     }
-    sortedMetrics.sort(function(a, b) { return b[1] - a[1] });
+    sortedMetrics.sort(function(a, b) { return b[1] - a[1]; });
 
     client.say(respondTo, util.format('\00307(leaderboard)\017 for \002%s\002 in the last %s days:', description, settings.leaderboardDays));
     sortedMetrics.slice(0, 5).forEach(function(distance, i) {
