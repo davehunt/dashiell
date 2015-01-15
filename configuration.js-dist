@@ -6,4 +6,4 @@ module.exports = {
   club: 0,
   leaderboardDays: 7,
   leaderboardMaxSize: 5
-}
+};

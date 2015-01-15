@@ -1,6 +1,6 @@
 # Dashiell
 
-An IRC bot that displays data from [strava](http://www.strava.com).
+An IRC bot that displays data from [Strava](http://www.strava.com).
 
 ## Installation
 
@@ -8,6 +8,7 @@ An IRC bot that displays data from [strava](http://www.strava.com).
 * `$ mkdir data`
 * `$ cp node_modules/strava-v3/strava_config data/strava_config`
 * Open `data/strava_config` and supply your application's `access_token` to the `access_token` field.
+* `$ cp configuration.js-dist configuration.js`
 * Open `configuration.js` and supply your settings.
 
 ## Usage
