@@ -4,6 +4,5 @@ module.exports = {
   nickname: 'dashiell',
   channels: ['#strava'],
   club: 0,
-  leaderboardDays: 7,
   leaderboardMaxSize: 5
 };
