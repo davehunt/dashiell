@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "irc": ">= 0.3.7",
+    "moment": ">= 2.9.0",
     "sprintf-js": ">= 1.0.2",
     "strava-v3": ">= 1.5.2",
     "strftime": ">=0.8.2"

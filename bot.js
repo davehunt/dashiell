@@ -4,12 +4,14 @@ var strftime = require('strftime');
 var util = require('util');
 var settings = require('./configuration.js');
 var sprintf = require("sprintf-js").sprintf;
+var moment = require('moment');
 
 var leaderboardMetrics = new Array('achievements', 'activities', 'distance', 'elevation');
 var help = {'help' : 'Show this help text',
             'activity': 'Mention activity xxxxx to show a summary of the activity',
-            'leaderboard [metric]': 'Show club leaderboard. Valid metrics are: ' + leaderboardMetrics.join([separator = ', ']) + '. Defaults to distance.',
-            'source': 'Share link to source code.'};
+            'leaderboard [metric] [days]': 'Show club leaderboard for the current week or the number of requested days. Valid metrics are: ' + leaderboardMetrics.join([separator = ', ']) + '. Defaults to distance.',
+            'source': 'Share link to source code.'
+           };
 
 for (var item in settings) {
   util.log(item + ': ' + settings[item]);
@@ -44,17 +46,23 @@ client.addListener('message', function(from, to, message) {
         if (!privateMessage) {
           client.say(to, 'Hey' + addressee + ', I\'ll send you a private message with the commands I understand.');
         }
-        // always send help as a private message
+        // Always send help as a private message
         client.say(from, 'Hey! Here are the commands I understand:');
         for (var item in help) {
           client.say(from, item + ': ' + help[item]);
         }
         break;
       case 'leaderboard':
+        // startDate is either last Monday at midnight (default), or today
+        // minus the number of days requested as an optional parameter
+        startDate = command.split(' ')[2] ?
+                    moment().subtract(command.split(' ')[2], 'days') :
+                    moment().day(1).startOf('day');
+
         strava.clubs.get({'id': settings.club}, function(err, club) {
           util.log('club: ' + util.inspect(club));
           strava.clubs.listActivities({'id': settings.club, 'per_page': 200}, function(err, activities) {
-            buildLeaderboard(activities, command.split(' ')[1]);
+            buildLeaderboard(activities, command.split(' ')[1], startDate);
           });
         });
         break;
@@ -92,7 +100,7 @@ client.addListener('message', function(from, to, message) {
     return util.format('%s km (%s mi)', Math.round(kilometers * 10) / 10, Math.round(miles * 10) / 10);
   }
 
-  function buildLeaderboard(activities, metric) {
+  function buildLeaderboard(activities, metric, startDate) {
     metric = (typeof metric !== 'undefined') ? metric : 'distance';
     if (leaderboardMetrics.indexOf(metric) === -1) {
       client.say(respondTo, 'Sorry' + addressee + ', but I don\'t recognise that leaderboard metric. Try one of: ' + leaderboardMetrics.join([separator = ', ']) + '.');
@@ -102,7 +110,7 @@ client.addListener('message', function(from, to, message) {
     var description;
     activities.forEach(function(activity) {
       util.log(util.inspect(activity));
-      if (!activityInLeaderboardRange(activity)) {
+      if (!activityInLeaderboardRange(activity, startDate)) {
         return;
       }
       var value;
@@ -127,8 +135,12 @@ client.addListener('message', function(from, to, message) {
       var athleteName = activity.athlete.firstname + ' ' + activity.athlete.lastname;
       metrics[athleteName] = (metrics[athleteName] || 0) + value;
     });
+
+    days = moment().diff(startDate, 'days');
+    days_message = days === 1 ? 'day' : days + ' days';
+    days_message += ' (from ' + startDate.format("YYYY-MM-DD HH:MM Z") +')';
     if (metrics.length === 0) {
-      client.say('Sorry' + addressee + ', but there are no activities for the club in the last ' + settings.leaderboardDays + ' days.');
+      client.say('Sorry' + addressee + ', but there are no activities for the club in the last ' + days_message);
     }
 
     var sortedMetrics = [];
@@ -137,7 +149,7 @@ client.addListener('message', function(from, to, message) {
     }
     sortedMetrics.sort(function(a, b) { return b[1] - a[1]; });
 
-    client.say(respondTo, util.format('\00307(leaderboard)\017 for \002%s\002 in the last %s days:', description, settings.leaderboardDays));
+    client.say(respondTo, util.format('\00307(leaderboard)\017 for \002%s\002 in the last %s:', description, days_message));
     sortedMetrics.slice(0, 5).forEach(function(distance, i) {
       var score = distance[1];
       switch (metric) {
@@ -145,17 +157,16 @@ client.addListener('message', function(from, to, message) {
           score = calculateDistance(score);
           break;
         case 'elevation':
-          score = score + 'm';
+          score = score.toFixed(2) + ' m';
           break;
       }
       client.say(respondTo, util.format('%s. %s - %s', i + 1, distance[0], score));
     });
   }
 
-  function activityInLeaderboardRange(activity) {
-    var startDate = Date.parse(activity.start_date);
-    var timeSinceActivity = Date.now() - startDate;
-    return (timeSinceActivity <= settings.leaderboardDays * 24 * 60 * 60 * 1000);
+  function activityInLeaderboardRange(activity, startDate) {
+    var activityStartDate = moment(activity.start_date);
+    return (activityStartDate >= startDate);
   }
 
   function processActivity(activity) {
