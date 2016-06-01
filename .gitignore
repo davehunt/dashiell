@@ -1,3 +1,4 @@
+.env
 configuration.js
 data/
 node_modules/
