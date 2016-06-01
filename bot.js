@@ -19,7 +19,7 @@ for (var item in settings) {
 
 var client = new irc.Client(settings.host, settings.nickname, {
   port: settings.port,
-  channels: settings.channels
+  channels: settings.channels.split(',')
 });
 util.log('connected to IRC');
 

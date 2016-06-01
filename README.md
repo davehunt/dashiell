@@ -5,11 +5,17 @@ An IRC bot that displays data from [Strava](http://www.strava.com).
 ## Installation
 
 * `$ npm install` to install Dashiell and all dependencies.
-* `$ mkdir data`
-* `$ cp node_modules/strava-v3/strava_config data/strava_config`
-* Open `data/strava_config` and supply your application's `access_token` to the `access_token` field.
-* `$ cp configuration.js-dist configuration.js`
-* Open `configuration.js` and supply your settings.
+
+## Configuration
+
+Settings are provided via environment variables:
+
+* IRC_CHANNELS - comma separated list of channels to join
+* IRC_HOST - host of the irc server to connect to
+* IRC_NICKNAME - nickname to use on irc
+* IRC_PORT - port of the irc server to connect to
+* STRAVA_ACCESS_TOKEN - access token for strava
+* STRAVA_CLUB - unique id of strava club
 
 ## Usage
 

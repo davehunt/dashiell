@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
+    "envs": ">= 0.1.6",
     "irc": ">= 0.3.7",
     "moment": ">= 2.9.0",
     "sprintf-js": ">= 1.0.2",
