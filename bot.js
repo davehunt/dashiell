@@ -5,11 +5,15 @@ var util = require('util');
 var settings = require('./configuration.js');
 var sprintf = require("sprintf-js").sprintf;
 var moment = require('moment');
+var chalk = require('chalk');
+
+var Pace = require('./pace').Pace;
 
 var leaderboardMetrics = new Array('achievements', 'activities', 'distance', 'elevation');
 var help = {'help' : 'Show this help text',
             'activity': 'Mention activity xxxxx to show a summary of the activity',
             'leaderboard [metric] [days]': 'Show club leaderboard for the current week or the number of requested days. Valid metrics are: ' + leaderboardMetrics.join([separator = ', ']) + '. Defaults to distance.',
+            'pace [paceString]':  'Convert pace to/from metric or imperial, or print some paces',
             'source': 'Share link to source code.'
            };
 
@@ -22,6 +26,7 @@ var client = new irc.Client(settings.host, settings.nickname, {
   channels: settings.channels.split(',')
 });
 util.log('connected to IRC');
+
 
 client.addListener('message', function(from, to, message) {
   util.log(from + ' => ' + to + ': "' + message + '"');
@@ -69,6 +74,33 @@ client.addListener('message', function(from, to, message) {
       case 'source':
         client.say(respondTo, 'Hey' + addressee + ', you can find my source code here: https://github.com/davehunt/dashiell');
         break;
+      case 'pace':
+      case 'heathen': {
+        var paceString = command.split(' ').splice((1)).join(' ');
+        if (!paceString) {
+          // TODO, make this into a function?
+          var paces = ['3:00', '4:00', '5:00', '6:00', '7:00', '8:00', '9:00'].map(
+            function (k) {
+              var p = new Pace(Pace.parsePace(k + " min/km"));
+              return sprintf('%s %s',
+                  chalk.bold.blue(p.pacePerKm),
+                  chalk.bold.red(p.pacePerMile)
+                )
+          })
+          var toSay = paces.join(chalk.white(' | '));
+          client.say(respondTo, sprintf('%s: %s', addressee, toSay));
+          break;
+        }
+        try {
+          var p = new Pace(Pace.parsePace(paceString));
+          client.say(respondTo, sprintf('%s: %s min/km %s min/mile', addressee, chalk.bold.blue(p.pacePerKm), chalk.red(p.pacePerMile)));
+        } catch (err) {
+          client.say(respondTo, sprintf('%s: pace: unable to parse "%s"', addressee, paceString))
+        } finally {
+          /** */
+        }
+        break;
+      }
       default:
         client.say(respondTo, 'Sorry' + addressee + ', I don\'t recognise that command. Try \'help\' to find out what I can do.');
     }
@@ -82,6 +114,10 @@ client.addListener('message', function(from, to, message) {
     strava.activities.get({'id': activityID}, function(err, activity) {
       processActivity(activity);
     });
+  }
+
+  function parsePace(aString) {
+
   }
 
   function calculatePace(meters, seconds) {
