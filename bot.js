@@ -5,6 +5,7 @@ var util = require('util');
 var settings = require('./configuration.js');
 var sprintf = require("sprintf-js").sprintf;
 var moment = require('moment');
+var colors = require('irc-colors');
 
 var leaderboardMetrics = new Array('achievements', 'activities', 'distance', 'elevation');
 var help = {'help' : 'Show this help text',
@@ -149,7 +150,8 @@ client.addListener('message', function(from, to, message) {
     }
     sortedMetrics.sort(function(a, b) { return b[1] - a[1]; });
 
-    client.say(respondTo, util.format('\00307(leaderboard)\017 for \002%s\002 in the last %s:', description, days_message));
+    client.say(respondTo, sprintf('%s for %s in the last %s:',
+      colors.olive('(leaderboard)'), colors.bold(description), days_message));
     sortedMetrics.slice(0, 5).forEach(function(distance, i) {
       var score = distance[1];
       switch (metric) {
@@ -190,7 +192,13 @@ client.addListener('message', function(from, to, message) {
     var movingTime = activity.moving_time;
     var pace = calculatePace(distance, movingTime);
     var elevation = activity.total_elevation_gain;
-    var message = util.format('\00307(activity)\017 \002%s\002 - %s - \00307distance\017 %s, \00307pace\017 %s, \00307climb\017 %sm - %s', athleteName, activityName, calculateDistance(distance), pace, elevation, start);
+    var message = sprintf('%s %s - %s - %s %s, %s %s, %s %sm - %s',
+      colors.olive('(activity)'),
+      colors.bold(athleteName),
+      activityName,
+      colors.olive('distance'), calculateDistance(distance),
+      colors.olive('pace'), pace,
+      colors.olive('climb'), elevation, start);
     client.say(respondTo, message);
   }
 
