@@ -58,16 +58,30 @@ client.addListener('message', function(from, to, message) {
         }
         break;
       case 'leaderboard':
+        args = command.split(' ');
+
+        var days, metric;
+        if (args.length == 3) {
+          metric = args[1];
+          days = args[2];
+        } else if (args.length == 2) {
+          if (isNaN(args[1])) {
+            metric = args[1];
+          } else {
+            days = args[1];
+          }
+        }
+
         // startDate is either last Monday at midnight (default), or today
         // minus the number of days requested as an optional parameter
-        startDate = command.split(' ')[2] ?
-                    moment().subtract(command.split(' ')[2], 'days') :
+        startDate = (typeof days !== 'undefined') ?
+                    moment().subtract(days, 'days') :
                     moment().day(1).startOf('day');
 
         strava.clubs.get({'id': settings.club}, function(err, club) {
           util.log('club: ' + util.inspect(club));
           strava.clubs.listActivities({'id': settings.club, 'per_page': 200}, function(err, activities) {
-            buildLeaderboard(activities, command.split(' ')[1], startDate);
+            buildLeaderboard(activities, metric, startDate);
           });
         });
         break;
