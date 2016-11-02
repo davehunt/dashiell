@@ -129,10 +129,7 @@ client.addListener('message', function(from, to, message) {
     var secondsPerKm = seconds / (meters / 1000);
     var minutesPerKm = Math.floor(secondsPerKm / 60);
     var pacePerKm = sprintf('%d:%02d', minutesPerKm, Math.round(secondsPerKm - minutesPerKm * 60));
-    var secondsPerMile = secondsPerKm / 0.621371192;
-    var minutesPerMile = Math.floor(secondsPerMile / 60);
-    var pacePerMile = sprintf('%d:%02d', minutesPerMile, Math.round(secondsPerMile - minutesPerMile * 60));
-    return util.format('%s/km (%s/mi)', pacePerKm, pacePerMile);
+    return new Pace(Pace.parsePace(sprintf('%s/km', pacePerKm)));
   }
 
   function calculateDistance(meters) {
@@ -232,12 +229,12 @@ client.addListener('message', function(from, to, message) {
     var movingTime = activity.moving_time;
     var pace = calculatePace(distance, movingTime);
     var elevation = activity.total_elevation_gain;
-    var message = sprintf('%s %s - %s - %s %s, %s %s, %s %sm - %s',
+    var message = sprintf('%s %s - %s - %s %s, %s %s/km (%s/mi), %s %sm - %s',
       colors.olive('(activity)'),
       colors.bold(athleteName),
       activityName,
       colors.olive('distance'), calculateDistance(distance),
-      colors.olive('pace'), pace,
+      colors.olive('pace'), pace.pacePerKm, pace.pacePerMile,
       colors.olive('climb'), elevation, start);
     client.say(respondTo, message);
   }

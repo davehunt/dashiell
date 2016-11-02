@@ -10,7 +10,7 @@ class Pace {
         this.secondsPerKm = seconds;
         break;
       // miles
-      case 'm':
+      case 'mi':
         this.secondsPerKm = seconds * KMM
         break;
       default:
@@ -27,7 +27,7 @@ class Pace {
   }
 
   static parsePace (aString) {
-    var re = /(([0-9]+):([0-9]+).*\/ *(km|m))/ ;
+    var re = /(([0-9]+):([0-9]+).*\/ *(km|mi))/ ;
     var parsed = re.exec(aString);
     if (parsed) {
       return {
@@ -53,5 +53,5 @@ if (require.main === module) {
   var parsed = Pace.parsePace(paceString);
   if (!parsed) fail("Unable to parse: %s", paceString);
   var p = new Pace(parsed);
-  console.log(p.pacePerKm, "min/km", p.pacePerMile, "min/mile");
+  console.log(p.pacePerKm, "/km", p.pacePerMile, "/mi");
 }
