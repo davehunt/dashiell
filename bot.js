@@ -88,8 +88,7 @@ client.addListener('message', function(from, to, message) {
       case 'source':
         client.say(respondTo, sprintf('Hey %s, you can find my source code here: https://github.com/davehunt/dashiell', addressee));
         break;
-      case 'pace':
-      case 'heathen': {
+      case 'pace': {
         var paceString = command.split(' ').splice((1)).join(' ');
         if (!paceString) {
           // TODO, make this into a function?
