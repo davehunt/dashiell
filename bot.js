@@ -91,7 +91,6 @@ client.addListener('message', function(from, to, message) {
       case 'pace': {
         var paceString = command.split(' ').splice((1)).join(' ');
         if (!paceString) {
-          // TODO, make this into a function?
           var paces = ['3:00', '4:00', '5:00', '6:00', '7:00', '8:00', '9:00'].map(
             function (k) {
               var p = new Pace(Pace.parsePace(k + "/km"));
@@ -124,10 +123,6 @@ client.addListener('message', function(from, to, message) {
     strava.activities.get({'id': activityID}, function(err, activity) {
       processActivity(activity);
     });
-  }
-
-  function parsePace(aString) {
-
   }
 
   function calculatePace(meters, seconds) {
