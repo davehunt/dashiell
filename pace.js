@@ -1,3 +1,5 @@
+"use strict";
+
 var sprintf = require("sprintf-js").sprintf;
 
 var KMM = 0.621371192;
