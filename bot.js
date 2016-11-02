@@ -105,8 +105,6 @@ client.addListener('message', function(from, to, message) {
           client.say(respondTo, sprintf('%s %s/km (%s/mi)', colors.olive('(pace)'), p.pacePerKm, p.pacePerMile));
         } catch (err) {
           client.say(respondTo, sprintf('%s: pace: unable to parse "%s"', addressee, paceString))
-        } finally {
-          /** */
         }
         break;
       }
