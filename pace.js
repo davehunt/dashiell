@@ -23,6 +23,7 @@ class Pace {
     }
 
     this.pacePerKm = format(this.secondsPerKm);
+    this.pacePer400m = format(this.secondsPerKm * 0.4)
     this.pacePerMile = format(this.secondsPerKm / KMM)
   }
 

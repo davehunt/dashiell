@@ -102,7 +102,9 @@ client.addListener('message', function(from, to, message) {
         }
         try {
           var p = new Pace(Pace.parsePace(paceString));
-          client.say(respondTo, sprintf('%s %s/km (%s/mi)', colors.olive('(pace)'), p.pacePerKm, p.pacePerMile));
+          var paces = [p.pacePerKm + '/km', p.pacePerMile + '/mi', p.pacePer400m + '/400m']
+          var toSay = paces.join(sprintf(' %s ', colors.olive('|')));
+          client.say(respondTo, sprintf('%s %s', colors.olive('(pace)'), toSay));
         } catch (err) {
           client.say(respondTo, sprintf('%s: pace: unable to parse "%s"', addressee, paceString))
         }
