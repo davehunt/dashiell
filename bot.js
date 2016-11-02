@@ -6,7 +6,6 @@ var settings = require('./configuration.js');
 var sprintf = require("sprintf-js").sprintf;
 var moment = require('moment');
 var colors = require('irc-colors');
-var chalk = require('chalk');
 
 var Pace = require('./pace').Pace;
 
@@ -50,12 +49,12 @@ client.addListener('message', function(from, to, message) {
     switch (command.split(' ')[0]) {
       case 'help':
         if (!privateMessage) {
-          client.say(to, 'Hey' + addressee + ', I\'ll send you a private message with the commands I understand.');
+          client.say(to, sprintf('Hey %s, I\'ll send you a private message with the commands I understand.', addressee));
         }
         // Always send help as a private message
         client.say(from, 'Hey! Here are the commands I understand:');
         for (var item in help) {
-          client.say(from, item + ': ' + help[item]);
+          client.say(from, sprintf('%s: %s', colors.olive(item), help[item]));
         }
         break;
       case 'leaderboard':
@@ -73,7 +72,7 @@ client.addListener('message', function(from, to, message) {
         });
         break;
       case 'source':
-        client.say(respondTo, 'Hey' + addressee + ', you can find my source code here: https://github.com/davehunt/dashiell');
+        client.say(respondTo, sprintf('Hey %s, you can find my source code here: https://github.com/davehunt/dashiell', addressee));
         break;
       case 'pace':
       case 'heathen': {
@@ -82,19 +81,16 @@ client.addListener('message', function(from, to, message) {
           // TODO, make this into a function?
           var paces = ['3:00', '4:00', '5:00', '6:00', '7:00', '8:00', '9:00'].map(
             function (k) {
-              var p = new Pace(Pace.parsePace(k + " min/km"));
-              return sprintf('%s %s',
-                  chalk.bold.blue(p.pacePerKm),
-                  chalk.bold.red(p.pacePerMile)
-                )
+              var p = new Pace(Pace.parsePace(k + "/km"));
+              return sprintf('%s/km (%s/mi)', p.pacePerKm, p.pacePerMile)
           })
-          var toSay = paces.join(chalk.white(' | '));
-          client.say(respondTo, sprintf('%s: %s', addressee, toSay));
+          var toSay = paces.join(sprintf(' %s ', colors.olive('|')));
+          client.say(respondTo, sprintf(sprintf('%s %s', colors.olive('(paces)'), toSay)));
           break;
         }
         try {
           var p = new Pace(Pace.parsePace(paceString));
-          client.say(respondTo, sprintf('%s: %s min/km %s min/mile', addressee, chalk.bold.blue(p.pacePerKm), chalk.red(p.pacePerMile)));
+          client.say(respondTo, sprintf('%s %s/km (%s/mi)', colors.olive('(pace)'), p.pacePerKm, p.pacePerMile));
         } catch (err) {
           client.say(respondTo, sprintf('%s: pace: unable to parse "%s"', addressee, paceString))
         } finally {
