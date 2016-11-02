@@ -8,6 +8,7 @@ var moment = require('moment');
 var colors = require('irc-colors');
 
 var Pace = require('./pace').Pace;
+var Speed = require('./speed').Speed;
 
 var leaderboardMetrics = new Array('achievements', 'activities', 'distance', 'elevation');
 var help = {'help' : 'Show this help text',
@@ -102,9 +103,12 @@ client.addListener('message', function(from, to, message) {
         }
         try {
           var p = new Pace(Pace.parsePace(paceString));
+          var s = new Speed(Pace.parsePace(paceString));
           var paces = [p.pacePerKm + '/km', p.pacePerMile + '/mi', p.pacePer400m + '/400m']
-          var toSay = paces.join(sprintf(' %s ', colors.olive('|')));
-          client.say(respondTo, sprintf('%s %s', colors.olive('(pace)'), toSay));
+          var speeds = [s.kmPerHour + 'km/hour', s.milePerHour + 'mi/hour']
+          client.say(respondTo, sprintf('%s %s %s %s',
+            colors.olive('(pace)'), paces.join(sprintf(' %s ', colors.olive('|'))),
+            colors.olive('(speed)'), speeds.join(sprintf(' %s ', colors.olive('|')))));
         } catch (err) {
           client.say(respondTo, sprintf('%s: pace: unable to parse "%s"', addressee, paceString))
         }
