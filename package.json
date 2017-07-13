@@ -2,7 +2,7 @@
   "name": "Dashiell",
   "version": "1.1.0",
   "engines": {
-    "node": "6.8.0"
+    "node": "6.11.1"
   },
   "private": true,
   "dependencies": {
